@@ -28,9 +28,9 @@ namespace Assets.Scripts.UV
         private readonly List<UVItem> uvItems = new();
 
         public List<MeshRenderer> ItemsRenderers => uvItems
-                .Where(item => item != null) // Safety: Filter out null UVItems
-                .SelectMany(item => item.renderers) // Maps each UVItem to its List<MeshRenderer> and flattens
-                .Where(renderer => renderer != null) // Safety: Filter out null renderers within the lists
+                .Where(item => item != null)
+                .SelectMany(item => item.renderers)
+                .Where(renderer => renderer != null)
                 .ToList();
 
         public MaterialPropertyBlock PropertyBlock { get; private set; }
@@ -76,7 +76,14 @@ namespace Assets.Scripts.UV
             }
         }
 
-        // --- Item Generation and Positioning ---
+        
+        /// <summary>
+        /// Generates a list of UV items along the Bezier spline using the prefabricated UV item.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use in the editor and can be called through the Unity context menu.
+        /// It will throw exceptions if the required components, prefabs, or data are not properly set.
+        /// </remarks>
         [ContextMenu("Generate UV Items")]
         public void GenerateUVItems()
         {
@@ -108,10 +115,6 @@ namespace Assets.Scripts.UV
             }
 
             ClearUVItems();
-
-            //TODO - Use the spline length to determine the number of items
-            //int itemsSplineCount = Mathf.CeilToInt(splineLength / itemSize) + 1;
-            //itemMaxCount = Mathf.Max(itemsSplineCount, itemMaxCount);
 
             for (int i = 0; i < ItemCount; i++)
             {
@@ -203,7 +206,6 @@ namespace Assets.Scripts.UV
         /// </summary>
         private void ApplyPropertyBlockToItems()
         {
-            // Use SelectMany (flatMap equivalent) for a clean, flattened iteration over all renderers
             var allRenderers = uvItems
                 .Where(item => item != null && item.renderers != null)
                 .SelectMany(item => item.renderers)
@@ -215,6 +217,15 @@ namespace Assets.Scripts.UV
             }
         }
 
+        /// <summary>
+        /// Approximates the number of UV items required to cover the entire spline length, 
+        /// based on the item size of the UV item prefab.
+        /// </summary>
+        /// <remarks>
+        /// This method is useful for quickly estimating the required number of UV items without having to
+        /// manually measure the spline length or manually calculate the item count.
+        /// It is recommended to use this method in the editor before running the game.
+        /// </remarks>
         [ContextMenu("Approximate Item Count")]
         public void ApproximateItemCount()
         {

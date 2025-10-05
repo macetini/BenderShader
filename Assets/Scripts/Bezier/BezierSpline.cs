@@ -32,8 +32,7 @@ namespace Assets.Scripts.Bezier
 
         private void OnValidate()
         {
-            // Ensure data is initialized when the component is first added or properties change in the editor.
-            // This is the CRITICAL FIX for the ArgumentOutOfRangeException in the Inspector.
+            // Ensure data is initialized when the component is first added or properties change in the editor.            
             Initialize();
         }
 
@@ -152,8 +151,8 @@ namespace Assets.Scripts.Bezier
         {
             // Use new List<T>() for initialization
             controlPoints = new List<Vector3> {
-                new Vector3(1f, 0f, 0f), new Vector3(2f, 0f, 0f),
-                new Vector3(3f, 0f, 0f), new Vector3(4f, 0f, 0f)
+                new(1f, 0f, 0f), new(2f, 0f, 0f),
+                new(3f, 0f, 0f), new(4f, 0f, 0f)
             };
             pointModes = new List<BezierControlPointMode> {
                 BezierControlPointMode.Free, BezierControlPointMode.Free
