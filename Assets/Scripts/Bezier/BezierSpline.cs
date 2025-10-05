@@ -3,20 +3,30 @@ using UnityEngine;
 
 namespace Assets.Scripts.Bezier
 {
-    // Ensure the GameObject has a Transform
-    [ExecuteInEditMode] // Uncomment if editor functionality is needed
+    // Uncomment order to enable editor functionality. 
+    // Comment Out if editor functionality is needed
+    [ExecuteInEditMode]
     [RequireComponent(typeof(Transform))]
     public class BezierSpline : MonoBehaviour
     {
+        // Exposing a read-only view of the list for safe external access
+        public IReadOnlyList<Vector3> ControlPoints => controlPoints.AsReadOnly();
+        public Vector3 GetControlPoint(int index) => controlPoints[index];
+        public int ControlPointCount => controlPoints.Count;
+        public int CurveCount => (controlPoints.Count - 1) / 3;
+
         [SerializeField]
         private List<Vector3> controlPoints;
 
         [SerializeField]
         private List<BezierControlPointMode> pointModes;
 
-        // Private fields (camelCase) for data storage and caching
+        // Private fields for data storage and caching
         [SerializeField]
         private bool isLooped;
+
+        [Tooltip("Offset position applied to new control points")]
+        public Vector3 NewPointOffset = Vector3.forward;
 
         // Fields for performance caching
         private float cachedSplineLength;
@@ -66,13 +76,6 @@ namespace Assets.Scripts.Bezier
                 isLengthDirty = true;
             }
         }
-
-        public int ControlPointCount => controlPoints.Count;
-
-        public int CurveCount => (controlPoints.Count - 1) / 3;
-
-        // Exposing a read-only view of the list for safe external access
-        public IReadOnlyList<Vector3> ControlPoints => controlPoints.AsReadOnly();
 
         // Optimized SplineLength getter using caching
         public float SplineLength
@@ -162,26 +165,64 @@ namespace Assets.Scripts.Bezier
 
         public void AddCurve()
         {
-            Vector3 lastPoint = controlPoints[controlPoints.Count - 1];
+            Vector3 lastPoint = controlPoints[^1];
+
+            if (NewPointOffset.magnitude <= 0.1f)
+            {
+                Debug.LogWarning("New Point Offset is too small. Last and New Point might overlap.", this);
+            }
 
             // Add the three new control points to the list
-            lastPoint.x += 1f;
-            controlPoints.Add(lastPoint);
-            lastPoint.x += 1f;
-            controlPoints.Add(lastPoint);
-            lastPoint.x += 1f;
-            controlPoints.Add(lastPoint);
+            for (int i = 0; i < 3; i++)
+            {
+                lastPoint += NewPointOffset;
+                controlPoints.Add(lastPoint);
+            }
 
             // Add new mode inherited from the previous segment's mode
-            pointModes.Add(pointModes[pointModes.Count - 1]);
+            pointModes.Add(pointModes[^1]);
             EnforceMode(controlPoints.Count - 4);
 
             if (isLooped)
             {
-                controlPoints[controlPoints.Count - 1] = controlPoints[0];
-                pointModes[pointModes.Count - 1] = pointModes[0];
+                controlPoints[^1] = controlPoints[0];
+                pointModes[^1] = pointModes[0];
                 EnforceMode(0);
             }
+
+            isLengthDirty = true;
+        }
+
+        public void RemoveCurve()
+        {
+            if (CurveCount <= 2)
+            {
+                throw new System.Exception("Cannot remove the last curve segment!");
+            }
+
+            int lastIndex = controlPoints.Count - 1;
+
+            // Remove the last three control points
+            for (int i = 0; i < 3; i++)
+            {
+                controlPoints.RemoveAt(lastIndex - i);
+            }
+
+            pointModes.RemoveAt(pointModes.Count - 1);
+
+            if (isLooped)
+            {
+                pointModes[^1] = pointModes[0];
+
+                // The first and last anchors are always the same when looped.
+                // The new last anchor (P0 of the new last segment) must match the start anchor (controlPoints[0]).
+                // We set the position to ensure the loop integrity is maintained.
+                controlPoints[^1] = controlPoints[0];
+
+                // Enforce mode on the start point to update its handle based on the new last handle.
+                EnforceMode(0);
+            }
+
             isLengthDirty = true;
         }
 
@@ -199,7 +240,7 @@ namespace Assets.Scripts.Bezier
             {
                 if (modeSegmentIndex == 0)
                 {
-                    pointModes[pointModes.Count - 1] = mode;
+                    pointModes[^1] = mode;
                 }
                 else if (modeSegmentIndex == pointModes.Count - 1)
                 {
@@ -209,8 +250,6 @@ namespace Assets.Scripts.Bezier
             EnforceMode(controlPointIndex);
             isLengthDirty = true;
         }
-
-        public Vector3 GetControlPoint(int index) => controlPoints[index];
 
         public void SetControlPoint(int index, Vector3 newPosition)
         {
@@ -223,8 +262,8 @@ namespace Assets.Scripts.Bezier
                     if (index == 0)
                     {
                         controlPoints[1] += positionDelta;
-                        controlPoints[controlPoints.Count - 2] += positionDelta;
-                        controlPoints[controlPoints.Count - 1] = newPosition;
+                        controlPoints[^2] += positionDelta;
+                        controlPoints[^1] = newPosition;
                     }
                     else if (index == controlPoints.Count - 1)
                     {

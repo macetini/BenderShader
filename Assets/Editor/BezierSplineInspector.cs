@@ -151,10 +151,20 @@ public class BezierSplineInspector : Editor
         }
 
         // Add Curve Button
-        if (GUILayout.Button("Add Curve"))
+        if (GUILayout.Button("Add New Point"))
         {
-            Undo.RecordObject(spline, "Add Curve");
+            Undo.RecordObject(spline, "Add Point");
             spline.AddCurve();
+            EditorUtility.SetDirty(spline);
+            // After adding a curve, usually the last point is selected
+            selectedIndex = spline.ControlPointCount - 1;
+        }
+
+         // Add Curve Button
+        if (GUILayout.Button("Remove Last Point"))
+        {
+            Undo.RecordObject(spline, "Remove Last Point");
+            spline.RemoveCurve();
             EditorUtility.SetDirty(spline);
             // After adding a curve, usually the last point is selected
             selectedIndex = spline.ControlPointCount - 1;

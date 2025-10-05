@@ -69,6 +69,7 @@
     "dotnet.defaultSolution": "BenderModernWorkGodDamn.sln",
     "cSpell.words": [
         "Binormal",
+        "Lerp",
         "Mathf"
     ]
 }
