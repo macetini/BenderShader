@@ -21,8 +21,8 @@ namespace Assets.Scripts.Controllers
         private const float MIN_PROGRESS_SAFETY = 0.0001f;
 
         // Gizmo Constants
-        private const float GizmoLineHeight = 10f;
-        private const float GizmoSphereRadius = 0.5f;
+        private const float GizmoLineHeight = 0.5f;
+        private const float GizmoSphereRadius = 0.03f;
 
         void Awake()
         {
