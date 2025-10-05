@@ -12,27 +12,26 @@ namespace Assets.Scripts.UV
         // --- PUBLIC INSPECTOR PROPERTIES ---
 
         [Tooltip("The BezierSpline component that defines the curve.")]
-        public BezierSpline spline;
+        public BezierSpline Spline;
 
         [Tooltip("Prefab containing the UVItem script to be instantiated along the spline.")]
-        public UVItem itemPrefab;
+        public UVItem ItemPrefab;
 
         [Tooltip("Container for the UVItem objects to be instantiated along the spline.")]
-        public GameObject itemsContainer;
+        public GameObject ItemsContainer;
 
         [Tooltip("Number of items to generate when using the fixed count method.")]
-        public int itemMaxCount = 10;
+        public int ItemCount = 10;
 
         // --- PRIVATE/MANAGED FIELDS ---
 
-        [SerializeField]
         private readonly List<UVItem> uvItems = new();
 
         public List<MeshRenderer> ItemsRenderers => uvItems
-                                                    .Where(item => item != null) // Safety: Filter out null UVItems
-                                                    .SelectMany(item => item.renderers) // Maps each UVItem to its List<MeshRenderer> and flattens
-                                                    .Where(renderer => renderer != null) // Safety: Filter out null renderers within the lists
-                                                    .ToList();
+                .Where(item => item != null) // Safety: Filter out null UVItems
+                .SelectMany(item => item.renderers) // Maps each UVItem to its List<MeshRenderer> and flattens
+                .Where(renderer => renderer != null) // Safety: Filter out null renderers within the lists
+                .ToList();
 
         public MaterialPropertyBlock PropertyBlock { get; private set; }
 
@@ -61,7 +60,7 @@ namespace Assets.Scripts.UV
 
         void OnValidate()
         {
-            if (spline != null)
+            if (Spline != null)
             {
                 // Ensure data is prepared for editor visualization
                 UpdateSplinePoints();
@@ -70,7 +69,7 @@ namespace Assets.Scripts.UV
 
         void Update()
         {
-            if (spline != null)
+            if (Spline != null)
             {
                 // Call every frame in Play mode to ensure dynamic updates
                 UpdateSplinePoints();
@@ -81,25 +80,27 @@ namespace Assets.Scripts.UV
         [ContextMenu("Generate UV Items")]
         public void GenerateUVItems()
         {
-            if (itemPrefab == null)
+            if (ItemPrefab == null)
             {
                 throw new System.Exception("UV Item Prefab not assigned!");
             }
+            if (ItemsContainer == null)
+            {
+                throw new System.Exception("Items Container not assigned!");
+            }
 
-            float splineLength = spline.SplineLength;
-            if (spline == null || splineLength <= 0f)
+            float splineLength = Spline.SplineLength;
+            if (Spline == null || splineLength <= 0f)
             {
                 throw new System.Exception("Spline not initialized or zero length.");
             }
 
-            // 🚨 Use the item component to get the itemSize
-            if (!itemPrefab.TryGetComponent<UVItem>(out var prefabItem))
+            if (!ItemPrefab.TryGetComponent<UVItem>(out var prefabItem))
             {
                 throw new System.Exception("UV Item Prefab is missing the UVItem component.");
             }
 
-            // Ensure size is calculated and saved on the prefab asset
-            // Assumes UVItem.CalculateItemSize() exists and works.            
+            // Ensure size is calculated and saved on the prefab asset            
             float itemSize = prefabItem.itemSize;
             if (itemSize <= 0.001f)
             {
@@ -112,14 +113,13 @@ namespace Assets.Scripts.UV
             //int itemsSplineCount = Mathf.CeilToInt(splineLength / itemSize) + 1;
             //itemMaxCount = Mathf.Max(itemsSplineCount, itemMaxCount);
 
-            for (int i = 0; i < itemMaxCount; i++)
+            for (int i = 0; i < ItemCount; i++)
             {
 #if UNITY_EDITOR
-                UVItem newItem = (UVItem)PrefabUtility.InstantiatePrefab(itemPrefab, itemsContainer.transform);
+                UVItem newItem = (UVItem)PrefabUtility.InstantiatePrefab(ItemPrefab, ItemsContainer.transform);
 #else
                 UVItem newItem = Instantiate(itemPrefab, itemsContainer.transform);
-#endif                
-                //UVItem newItem = (UVItem)PrefabUtility.InstantiatePrefab(itemPrefab, itemsContainer.transform);
+#endif                                
                 newItem.gameObject.name = $"UVItem_{i}";
 
                 // Set item's Z-position for shader deformation
@@ -142,14 +142,12 @@ namespace Assets.Scripts.UV
         [ContextMenu("Update Spline Points")]
         internal void UpdateSplinePoints()
         {
+            // Initialize the property block
             InitializeRenderingData();
-
             // Prepare and validate CPU data
             PrepareSplineData();
-
             // Transfer data from CPU to MaterialPropertyBlock
             TransferDataToPropertyBlock();
-
             // Apply the block to all renderers
             ApplyPropertyBlockToItems();
         }
@@ -162,12 +160,12 @@ namespace Assets.Scripts.UV
         /// <returns>True if data is valid and prepared; otherwise, false.</returns>
         private void PrepareSplineData()
         {
-            if (spline == null || spline.ControlPointCount < 4)
+            if (Spline == null || Spline.ControlPointCount < 4)
             {
                 throw new System.Exception("Spline not initialized, or spline has insufficient control points (min 4 required).");
             }
 
-            int count = spline.ControlPointCount;
+            int count = Spline.ControlPointCount;
 
             // Ensure the array is correctly sized
             if (splineVectorArray == null || splineVectorArray.Length != count)
@@ -178,7 +176,7 @@ namespace Assets.Scripts.UV
             // Populate the array with current World Space positions
             for (int i = 0; i < count; i++)
             {
-                splineVectorArray[i] = spline.GetControlPoint(i);
+                splineVectorArray[i] = Spline.GetControlPoint(i);
             }
 
             if (splineVectorArray.Length == 0)
@@ -193,8 +191,8 @@ namespace Assets.Scripts.UV
         private void TransferDataToPropertyBlock()
         {
             // Set scalar values
-            PropertyBlock.SetFloat(splineLengthID, spline.SplineLength);
-            PropertyBlock.SetInt(splinePointsCountID, spline.ControlPointCount);
+            PropertyBlock.SetFloat(splineLengthID, Spline.SplineLength);
+            PropertyBlock.SetInt(splinePointsCountID, Spline.ControlPointCount);
 
             // Set the main VectorArray
             PropertyBlock.SetVectorArray(splinePointsID, splineVectorArray);
@@ -217,6 +215,12 @@ namespace Assets.Scripts.UV
             }
         }
 
+        [ContextMenu("Approximate Item Count")]
+        public void ApproximateItemCount()
+        {
+            ItemCount = Mathf.CeilToInt(Spline.SplineLength / ItemPrefab.itemSize) + 1;
+        }
+
         [ContextMenu("Clear UV Items")]
         public void ClearUVItems()
         {
@@ -230,14 +234,6 @@ namespace Assets.Scripts.UV
 #else
                     Destroy(item.gameObject);
 #endif      
-                    /*if (Application.isPlaying)
-                    {
-                        Destroy(item.gameObject);
-                    }
-                    else
-                    {
-                        DestroyImmediate(item.gameObject);
-                    }*/
                 }
             }
             uvItems.Clear();

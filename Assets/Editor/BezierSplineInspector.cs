@@ -2,7 +2,6 @@ using Assets.Scripts.Bezier;
 using UnityEditor;
 using UnityEngine;
 
-// Define the editor for the BezierSpline component
 [CustomEditor(typeof(BezierSpline))]
 public class BezierSplineInspector : Editor
 {    
@@ -35,8 +34,6 @@ public class BezierSplineInspector : Editor
         DrawDefaultInspector();
 
         if (spline == null) return;
-
-        // --- Custom Spline Properties and Buttons ---
 
         // Draw Loop property
         EditorGUI.BeginChangeCheck();
@@ -105,8 +102,7 @@ public class BezierSplineInspector : Editor
 
     private void DrawSelectedPointInspector()
     {
-        GUILayout.Space(10);
-        // FIX APPLIED HERE: Replaced EditorStyles.boldHeader with EditorStyles.boldLabel
+        GUILayout.Space(10);        
         EditorGUILayout.LabelField("Selected Point", EditorStyles.boldLabel);
 
         EditorGUI.indentLevel++;
@@ -152,8 +148,9 @@ public class BezierSplineInspector : Editor
             size *= 0.5f;
         }
 
+        Color unSelectedColor = index % 3 == 0 ? Color.white : Color.cyan;
         // Determine handle color based on selection and point type
-        Handles.color = index == selectedIndex ? Color.yellow : (index % 3 == 0 ? Color.white : Color.cyan);
+        Handles.color = index == selectedIndex ? Color.yellow : unSelectedColor;
 
         // Draw a selectable handle
         if (Handles.Button(point, handleRotation, size, PickSize * HandleUtility.GetHandleSize(point), Handles.DotHandleCap))

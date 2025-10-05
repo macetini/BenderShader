@@ -66,5 +66,8 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj",
     },
-    "dotnet.defaultSolution": "BenderModernWorkGodDamn.sln"
+    "dotnet.defaultSolution": "BenderModernWorkGodDamn.sln",
+    "cSpell.words": [
+        "Mathf"
+    ]
 }
