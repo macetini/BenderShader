@@ -8,15 +8,15 @@ namespace Assets.Scripts.Bezier
     [RequireComponent(typeof(Transform))]
     public class BezierSpline : MonoBehaviour
     {
-        // Private fields (camelCase) for data storage and caching
-        [SerializeField]
-        private bool isLooped;
-
         [SerializeField]
         private List<Vector3> controlPoints;
 
         [SerializeField]
         private List<BezierControlPointMode> pointModes;
+
+        // Private fields (camelCase) for data storage and caching
+        [SerializeField]
+        private bool isLooped;
 
         // Fields for performance caching
         private float cachedSplineLength;
