@@ -5,7 +5,7 @@ namespace Assets.Scripts.UV
 {
     public class UVItem : MonoBehaviour
     {
-        public float itemSize;        
+        public float itemSize;
         public List<MeshRenderer> renderers = new();
 
         [ContextMenu("Assign Renderers")]
@@ -37,7 +37,8 @@ namespace Assets.Scripts.UV
             // Get the largest local dimension for the item size/spacing            
             Vector3 sizeInLocalSpace = transform.InverseTransformVector(combinedBounds.size);
 
-            itemSize = Mathf.Max(Mathf.Abs(sizeInLocalSpace.x), Mathf.Abs(sizeInLocalSpace.y), Mathf.Abs(sizeInLocalSpace.z));
+            itemSize = Mathf.Abs(sizeInLocalSpace.z * transform.lossyScale.z);
+            //Mathf.Max(Mathf.Abs(sizeInLocalSpace.x * transform.lossyScale.x), Mathf.Abs(sizeInLocalSpace.y * transform.lossyScale.y), Mathf.Abs(sizeInLocalSpace.z * transform.lossyScale.z));
         }
     }
 }
