@@ -121,7 +121,7 @@ namespace Assets.Scripts.UV
 #if UNITY_EDITOR
                 UVItem newItem = (UVItem)PrefabUtility.InstantiatePrefab(ItemPrefab, ItemsContainer.transform);
 #else
-                UVItem newItem = Instantiate(itemPrefab, itemsContainer.transform);
+                UVItem newItem = Instantiate(ItemPrefab, ItemsContainer.transform);
 #endif                                
                 newItem.gameObject.name = $"UVItem_{i}";
 

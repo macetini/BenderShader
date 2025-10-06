@@ -34,8 +34,8 @@ MonoBehaviour:
     - line: '|   targetDevice: 2'
     - line: '|   useOnDemandResources: 0'
     - line: '|   accelerometerFrequency: 60'
-    - line: '|   companyName: DefaultCompany'
-    - line: '|   productName: BenderModernWorkGodDamn'
+    - line: '|   companyName: ACME d.o.o.'
+    - line: '|   productName: Bender'
     - line: '|   defaultCursor: {instanceID: 0}'
     - line: '|   cursorHotspot: {x: 0, y: 0}'
     - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b:
@@ -841,7 +841,7 @@ MonoBehaviour:
     - line: '|   webGLWebAssemblyTable: 0'
     - line: '|   webGLWebAssemblyBigInt: 0'
     - line: '|   webGLCloseOnQuit: 0'
-    - line: '|   webWasm2023: 0'
+    - line: '|   webWasm2023: 1'
     - line: '|   scriptingDefineSymbols: {}'
     - line: '|   additionalCompilerArguments: {}'
     - line: '|   platformArchitecture: {}'
@@ -974,7 +974,7 @@ MonoBehaviour:
         m_ExplicitArrayBoundsChecks: 0
         m_CompressionType: -1
         m_InstallInBuildFolder: 0
-        m_CodeOptimization: 0
+        m_CodeOptimization: 4
         m_WebGLClientBrowserPath: 
         m_WebGLClientBrowserType: 0
         m_WebGLTextureSubtarget: 0
