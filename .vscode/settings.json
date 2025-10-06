@@ -69,7 +69,18 @@
     "dotnet.defaultSolution": "BenderModernWorkGodDamn.sln",
     "cSpell.words": [
         "Binormal",
+        "CBUFFER",
+        "CBUFFERS",
+        "ENDHLSL",
+        "hlsl",
+        "HLSLPROGRAM",
+        "ifdef",
+        "Lambertian",
         "Lerp",
-        "Mathf"
+        "LIGHTMAP",
+        "Mathf",
+        "Ndot",
+        "Varyings",
+        "xyzw"
     ]
 }
